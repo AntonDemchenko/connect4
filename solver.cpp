@@ -14,6 +14,9 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with Connect4 Game Solver. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Changes made by Anton Demchenko 22.02.2018 <d.flier@yandex.ru>:
+ * Truncate results of function solve in case of weak solver
  */
 
 #include <cassert>
@@ -109,7 +112,7 @@ namespace GameSolver { namespace Connect4 {
     int Solver::solve(const Position &P, bool weak) 
     {
       if(P.canWinNext()) // check if win in one move as the Negamax function does not support this case.
-        return (Position::WIDTH*Position::HEIGHT+1 - P.nbMoves())/2;
+        return weak ? 1 : (Position::WIDTH*Position::HEIGHT+1 - P.nbMoves())/2;
       int min = -(Position::WIDTH*Position::HEIGHT - P.nbMoves())/2;
       int max = (Position::WIDTH*Position::HEIGHT+1 - P.nbMoves())/2;
       if(weak) {
@@ -125,6 +128,12 @@ namespace GameSolver { namespace Connect4 {
         if(r <= med) max = r;
         else min = r;
       }
+
+      if (weak) {
+        if (min < -1) min = -1;
+        if (min > 1) min = 1;
+      }
+
       return min;
     }
     
